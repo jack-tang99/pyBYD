@@ -255,8 +255,7 @@ def apply_hvac_filters(
     if previous is None:
         return incoming
     all_zero_or_missing = all(
-        getattr(incoming, field, None) in (None, 0, 0.0)
-        for field in _HVAC_SENSOR_PLACEHOLDER_FIELDS
+        getattr(incoming, field, None) in (None, 0, 0.0) for field in _HVAC_SENSOR_PLACEHOLDER_FIELDS
     )
     if not all_zero_or_missing:
         return incoming
