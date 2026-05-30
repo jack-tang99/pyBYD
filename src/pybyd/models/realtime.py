@@ -398,6 +398,12 @@ class VehicleRealtimeData(BydBaseModel):
         "upgrade_status": is_negative,
         # Fuel range: -1 means unavailable (BEV or no data).
         "oil_endurance": is_negative,
+        # EV range / SoC: -1 sentinel on post-wake or deep-sleep payloads.
+        # 0 is intentionally NOT a sentinel — an empty battery is a valid
+        # reading.  We only strip negatives.
+        "endurance_mileage": is_negative,
+        "endurance_mileage_v2": is_negative,
+        "elec_percent": is_negative,
         # Charge rate: large negative sentinels when not charging.
         "rate": lambda v: v is not None and v <= -9,
     }
@@ -500,6 +506,14 @@ class VehicleRealtimeData(BydBaseModel):
     left_rear_window: WindowState | None = None
     right_rear_window: WindowState | None = None
     skylight: WindowState | None = None
+
+    # --- Window opening percentage (0-100) ---
+    # Sealion 7 EU reports 0 when closed and 10 after the OPEN_WINDOWS
+    # vent command; full drop reports 100.  Other trims may not populate.
+    left_front_window_pct: int | None = None
+    right_front_window_pct: int | None = None
+    left_rear_window_pct: int | None = None
+    right_rear_window_pct: int | None = None
 
     # --- Tire pressure ---
     left_front_tire_pressure: float | None = None
