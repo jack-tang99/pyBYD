@@ -77,21 +77,21 @@ _COMMAND_GATE_RULES: tuple[CommandGateRule, ...] = (
         {
             "gateId": "climate",
             "command": RemoteCommand.START_CLIMATE,
-            "requiredFunctionNos": ["1001", "10300001"],
+            "requiredFunctionNos": ["1001", "10300001", "1015"],
         }
     ),
     CommandGateRule.model_validate(
         {
             "gateId": "climate",
             "command": RemoteCommand.STOP_CLIMATE,
-            "requiredFunctionNos": ["1001", "10300001"],
+            "requiredFunctionNos": ["1001", "10300001", "1015"],
         }
     ),
     CommandGateRule.model_validate(
         {
             "gateId": "climate_schedule",
             "command": RemoteCommand.SCHEDULE_CLIMATE,
-            "requiredFunctionNos": ["1001", "10300001"],
+            "requiredFunctionNos": ["1001", "10300001", "1015"],
         }
     ),
     CommandGateRule.model_validate(
