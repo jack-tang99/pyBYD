@@ -271,16 +271,31 @@ class BydMqttRuntime:
         """Stop and disconnect current MQTT client if running."""
         client = self._client
         self._client = None
-        was_running = self._running
         self._running = False
         self._topic = None
 
         if client is None:
             return
         try:
-            if was_running:
-                self._logger.debug("MQTT disconnect requested")
-                client.disconnect()
+            # Request a graceful DISCONNECT unconditionally — even a refused /
+            # never-acked connection can hold a half-open socket.
+            self._logger.debug("MQTT disconnect requested")
+            client.disconnect()
+        except Exception:  # noqa: BLE001
+            pass
         finally:
             client.loop_stop()
-            self._logger.debug("MQTT network loop stopped")
+            # paho's disconnect()/loop_stop() do NOT deterministically close
+            # the TLS socket — it is otherwise only reclaimed at GC (__del__).
+            # Under frequent restarts (re-auth on session expiry / token
+            # invalidation, key-refresh) the leaked file descriptors accumulate
+            # and can eventually exhaust the host's FD limit ([Errno 24]),
+            # taking the process down. Force the TLS socket + the loop_start
+            # self-pipe closed right now.
+            with contextlib.suppress(Exception):
+                client._reset_sockets()  # closes _sock (TLS) + socketpair
+            with contextlib.suppress(Exception):
+                sock = client.socket()
+                if sock is not None:
+                    sock.close()
+            self._logger.debug("MQTT network loop stopped (sockets released)")
