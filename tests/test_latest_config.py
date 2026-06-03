@@ -133,9 +133,29 @@ def test_from_latest_config_marks_each_registry_feature_supported_or_not() -> No
 )
 def test_specific_capability_resolution(expected_key: str, should_be: bool) -> None:
     caps = VehicleCapabilities.from_latest_config("VIN_PLACEHOLDER", _build_latest(_OVERSEAS_FUNCTION_NOS))
-    assert (
-        getattr(caps, expected_key) is should_be
-    ), f"expected {expected_key} to be {should_be} for the test vehicle dump"
+    assert getattr(caps, expected_key) is should_be, (
+        f"expected {expected_key} to be {should_be} for the test vehicle dump"
+    )
+
+
+def test_electric_ac_function_no_enables_climate_capability() -> None:
+    """Some vehicles report remote HVAC as Electric A/C functionNo 1015."""
+    latest = VehicleLatestConfig.model_validate(
+        {
+            "cfFixedList": [
+                {
+                    "code": "Electric A/C",
+                    "functionName": "电动空调",
+                    "functionNo": "1015",
+                    "sortNum": 15,
+                }
+            ]
+        }
+    )
+    caps = VehicleCapabilities.from_latest_config("VIN_PLACEHOLDER", latest)
+    assert caps.climate is True
+    assert caps.car_on is True
+    assert caps.unknown_function_nos == []
 
 
 def test_supported_summary_pins_count() -> None:
