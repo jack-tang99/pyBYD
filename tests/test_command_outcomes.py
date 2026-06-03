@@ -49,9 +49,7 @@ async def test_no_serial_raises_instead_of_tentative_success(monkeypatch: pytest
     )
 
     with pytest.raises(BydRemoteControlError) as exc_info:
-        await _poll_remote_control_once(
-            None, None, None, "VIN", RemoteCommand.FLASH_LIGHTS, mqtt_result_waiter=None
-        )
+        await _poll_remote_control_once(None, None, None, "VIN", RemoteCommand.FLASH_LIGHTS, mqtt_result_waiter=None)
 
     assert exc_info.value.code == "no_serial"
 
