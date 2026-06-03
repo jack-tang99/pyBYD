@@ -128,6 +128,7 @@ class BydClient:
         on_mqtt_event: Callable[[str, str, dict[str, Any]], None] | None = None,
         on_command_ack: Callable[[CommandAckEvent], None] | None = None,
         on_command_lifecycle: Callable[[CommandLifecycleEvent], None] | None = None,
+        on_mqtt_connect: Callable[[], None] | None = None,
         command_ack_ttl_seconds: float = 300.0,
     ) -> None:
         self._config = config
@@ -144,6 +145,7 @@ class BydClient:
         self._on_mqtt_event_cb = on_mqtt_event
         self._on_command_ack_cb = on_command_ack
         self._on_command_lifecycle_cb = on_command_lifecycle
+        self._on_mqtt_connect_cb = on_mqtt_connect
         self._command_ack_ttl_seconds = command_ack_ttl_seconds if command_ack_ttl_seconds > 0 else 300.0
         self._pending_commands: dict[tuple[str, str], _PendingCommand] = {}
         self._pending_matched_count = 0
@@ -442,6 +444,7 @@ class BydClient:
                 decrypt_key_hex=session.content_key(),
                 on_event=self._on_mqtt_event,
                 on_decrypt_error=self._schedule_mqtt_reauth,
+                on_connected=self._on_mqtt_connect_cb,
                 keepalive=self._config.mqtt_keepalive,
                 logger=_logger,
             )
