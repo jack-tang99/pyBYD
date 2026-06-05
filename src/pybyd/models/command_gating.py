@@ -183,6 +183,15 @@ _COMMAND_GATE_RULES: tuple[CommandGateRule, ...] = (
             "requiredFunctionNos": ["1012"],
         }
     ),
+    CommandGateRule.model_validate(
+        {
+            # Stopping uses the same `RESERVATIONCHARGING` (`1012`) capability
+            # as starting — the changeChargeStatue toggle with ``status: "0"``.
+            "gateId": "stop_charge",
+            "command": RemoteCommand.STOP_CHARGE,
+            "requiredFunctionNos": ["1012"],
+        }
+    ),
 )
 
 # Seat command requires explicit target selection via control_params.chairType.
