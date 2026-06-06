@@ -247,6 +247,17 @@ class BydCar:
         """
         return await self._client.start_charging(self._vin)
 
+    async def stop_charging(self) -> ChargeChangeResult:
+        """Stop charging immediately and wait for the toggle to settle.
+
+        Symmetric to :meth:`start_charging`; routes through the same
+        ``_trigger_and_poll`` pipeline with ``status: "0"``.
+
+        Raises :class:`BydRemoteControlError` if the toggle reports
+        failure or doesn't settle within the polling window.
+        """
+        return await self._client.stop_charging(self._vin)
+
     async def update_energy(self) -> EnergyConsumption:
         """Fetch fresh energy consumption data and merge into state engine."""
         data = await self._client.get_energy_consumption(self._vin)
