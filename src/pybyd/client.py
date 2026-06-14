@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING, Any, TypeVar
 
 import aiohttp
 
+from pybyd._api import booking as _booking_api
 from pybyd._api import charging as _charging_api
 from pybyd._api import control as _control_api
 from pybyd._api import energy as _energy_api
@@ -40,6 +41,7 @@ from pybyd.exceptions import (
     BydSessionExpiredError,
 )
 from pybyd.models._base import BydBaseModel
+from pybyd.models.booking import BookingList
 from pybyd.models.charging import ChargingStatus
 from pybyd.models.command_gating import evaluate_command_gate
 from pybyd.models.control import (
@@ -1720,3 +1722,12 @@ class BydClient:
     async def rename_vehicle(self, vin: str, *, name: str) -> CommandAck:
         """Rename a vehicle."""
         return await self._authed_call(_settings_api.rename_vehicle, vin, name=name)
+
+    async def get_booking_list(self, vin: str) -> BookingList:
+        """Fetch the vehicle's scheduled-climate (``BOOKINGAIR``) timers.
+
+        Note: the endpoint intermittently returns an empty payload even when a
+        booking is set, so an empty ``bookings`` list means "none reported",
+        not a guaranteed "none scheduled".
+        """
+        return await self._authed_call(_booking_api.fetch_booking_list, vin)
